@@ -24,8 +24,8 @@ resource "google_compute_subnetwork" "db_subnet" {
 }
 
 resource "google_compute_route" "internet_access" {
-  name            = "internet-access"
-  network         = google_compute_network.vpc.id
-  dest_range      = "0.0.0.0/0"
+  name             = "internet-access"
+  network          = google_compute_network.vpc.id
+  dest_range       = "0.0.0.0/0"
   next_hop_gateway = "default-internet-gateway"
 }
