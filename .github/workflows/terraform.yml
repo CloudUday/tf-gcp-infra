@@ -25,7 +25,7 @@ jobs:
 
     - name: 'Terraform Init'
       id: init
-      run: terraform init
+      run: terraform in
 
     - name: 'Terraform Validate'
       id: validate
