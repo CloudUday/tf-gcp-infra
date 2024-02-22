@@ -30,7 +30,7 @@ variable "vm_name" {
 }
 
 variable "vm_zone" {
-  description = "The zone for the VM instance"
+  description = "The zone for the VM  instance"
   type        = string
 }
 
