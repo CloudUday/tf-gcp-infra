@@ -3,6 +3,10 @@ provider "google" {
   region  = var.region
 }
 
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region
+}
 
 
 resource "google_compute_network" "vpc" {
@@ -60,6 +64,27 @@ resource "google_compute_firewall" "deny_ssh" {
   source_ranges = ["0.0.0.0/0"]
 }
 
+#  start of private service access
+resource "google_compute_global_address" "default" {
+  provider     = google-beta
+  project      = var.project_id
+  name         = "${var.vpc_name}-psconnect-ip"
+  address_type = "INTERNAL"
+  purpose      = "VPC_PEERING"
+  network      = google_compute_network.vpc.id
+  prefix_length = 16
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  provider = google-beta
+  network  = google_compute_network.vpc.id
+  service  = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.default.name]
+}
+
+
+# end of private service access
+
 resource "google_compute_instance" "vm_instance" {
   name         = var.vm_name  
   zone         = var.vm_zone
@@ -82,6 +107,39 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 }
+
+#  start of creating cloudsql instance 
+
+resource "google_sql_database_instance" "cloudsql_instance" {
+  provider = google-beta
+
+  name             = "your-cloudsql-instance-healthapp" # Ensure this is unique
+  region           = var.region
+  database_version = "MYSQL_5_7" # Example, adjust as needed
+  project          = var.project_id
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro" # Adjust as needed, example tier
+
+    ip_configuration {
+      ipv4_enabled = false
+      private_network = google_compute_global_address.default.network
+      require_ssl = true # If you want to enforce SSL
+    }
+
+    disk_type = "PD_SSD"
+    disk_size = 100
+    disk_autoresize = true # Optional, based on your preference
+    availability_type = "REGIONAL"
+
+  }
+
+  # This depends_on is crucial to ensure the network settings are in place before the instance is created
+  depends_on = [google_service_networking_connection.private_vpc_connection]
+}
+
+
 
 
 
