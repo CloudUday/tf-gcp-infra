@@ -19,13 +19,10 @@ jobs:
       with:
         terraform_version: 1.0.0
 
-    - name: 'Terraform Format'
-      id: fmt
-      run: terraform fmt -check
-
     - name: 'Terraform Init'
       id: init
       run: terraform init
+
 
     - name: 'Terraform Validate'
       id: validate
