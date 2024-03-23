@@ -86,16 +86,21 @@ resource "google_compute_instance" "vm_instance" {
     # network = google_compute_network.this.name
 
       access_config{
+        nat_ip = google_compute_address.static_ip.address
     
   }
   }
-  service_account {
-    scopes = ["cloud-platform"]
-    email = var.email
-  }
+  # service_account {
+  #   scopes = ["cloud-platform"]
+  #   email = var.email
+  # }
 
  metadata = {
     startup-script = "#!/bin/bash\n  cat<<EOF>/opt/web-app/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/web-app/.env\n  chmod 600 /opt/web-app/.env\n  systemctl restart web-app\n\n  EOT\n"
+  }
+  service_account {
+    email  = google_service_account.vm_service_account.email
+    scopes = ["cloud-platform"]
   }
 
 }
@@ -189,4 +194,43 @@ resource "google_sql_user" "user" {
     value = "google_sql_database_instance.cloudsql_instance.ip_address"
   }
 
+resource "google_compute_address" "static_ip" {
+  name   = "vm-static-ip"
+  region = var.region
+}
+
+resource "google_service_account" "vm_service_account" {
+  account_id   = "vm-service-account"
+  display_name = "Service Account for VM Instance"
+  project = var.project_id
+}
+#IAM bindings to service account
+resource "google_project_iam_binding" "logging_admin" {
+  project = var.project_id
+  role    = "roles/logging.admin"
+  members = [
+    "serviceAccount:${google_service_account.vm_service_account.email}",
+  ]
+}
+
+resource "google_project_iam_binding" "monitoring_metric_writer" {
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
+  members = [
+    "serviceAccount:${google_service_account.vm_service_account.email}",
+  ]
+}
+
+data "google_dns_managed_zone" "my_dns_zone" {
+  name        = "udaygattu"
+}
+ 
+resource "google_dns_record_set" "my_dns_record" {
+  name         = data.google_dns_managed_zone.my_dns_zone.dns_name
+  type         = "A"
+  ttl          = 300
+  managed_zone = data.google_dns_managed_zone.my_dns_zone.name
+  rrdatas      = [google_compute_address.static_ip.address]
+
+}
 
