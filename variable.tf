@@ -112,3 +112,110 @@ variable "routing_mode" {
 variable "email" {
   description = "service_email"
 }
+
+variable "db_port" {
+  description = "value"
+}
+
+variable "routing_mode" {
+  description = "value"
+}
+variable "ssl" {
+  description = "value"
+}
+variable "max" {
+  description = "value"
+}
+variable "min" {
+  description = "value"
+}
+
+variable "cooldown" {
+  description = "value"
+}
+
+variable "urlname" {
+  description = "value"
+}
+variable "targetcpu" {
+  description = "value"
+}
+variable "target_tags" {
+  description = "value"
+}
+variable "priorityvalue" {
+  description = "value"
+}
+variable "direction" {
+  description = "value"
+}
+variable "loadbalancerport" {
+  description = "value"
+}
+variable "scheme" {
+  description = "value"
+}
+variable "ip_protocol" {
+  description = "value"
+}
+
+variable "port_name" {
+  description = "value"
+}
+
+variable "webapp_protocol" {
+  description = "value"
+}
+variable "timeout_sec" {
+  description = "value"
+}
+variable "initial_delay_sec" {
+  description = "value"
+}
+variable "time_out" {
+  description = "value"
+}
+variable "distributionzones" {
+  description = "value"
+}
+variable "target_size" {
+  description = "value"
+}
+variable "unhealthy_threshold" {
+  description = "value"
+}
+variable "healthy_threshold" {
+  description = "value"
+}
+variable "interval_time" {
+  description = "value"
+}
+variable "tag" {
+  description = "value"
+}
+variable "loadbalancerrange" {
+  description = "value"
+}
+variable "named_port" {
+  description = "value"
+}
+variable "namedp" {
+  description = "value"
+}
+variable "request_path" {
+  description = "value"
+}
+variable "record_ttl" {
+  description = "value"
+}
+variable "dns_type" {
+  description = "value"
+}
+
+variable "domain_name" {
+  description = "value"
+}
+
+variable "protocol" {
+  description = "value"
+}
