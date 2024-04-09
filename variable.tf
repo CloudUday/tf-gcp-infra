@@ -113,13 +113,8 @@ variable "email" {
   description = "service_email"
 }
 
-variable "db_port" {
-  description = "value"
-}
 
-variable "routing_mode" {
-  description = "value"
-}
+
 variable "ssl" {
   description = "value"
 }

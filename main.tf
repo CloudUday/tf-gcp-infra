@@ -20,7 +20,7 @@ resource "google_compute_subnetwork" "webapp_subnet" { #done
   region = var.region
   network = google_compute_network.vpc.id
  ip_cidr_range = var.webapp_subnet_cidr
- private_ip_google_access = false
+ private_ip_google_access = true
 }
 
 resource "google_compute_subnetwork" "db_host" { #done
@@ -28,7 +28,6 @@ resource "google_compute_subnetwork" "db_host" { #done
   region = var.region
   network = google_compute_network.vpc.id
   ip_cidr_range = var.db_subnet_cidr
-  private_ip_google_access = false
   
 }
 
@@ -46,8 +45,9 @@ resource "google_compute_route" "internet_access" {  #done
 resource "google_compute_firewall" "allow_web" {    #done
   name = "${var.vpc_name}-allow-web"
   network = google_compute_network.vpc.name
+  direction = var.direction
   allow {
-    protocol = "tcp"
+    protocol = var.protocol
     ports = [var.app_port]
   }
   # source_ranges = ["0.0.0.0/0"]
@@ -60,7 +60,7 @@ resource "google_compute_firewall" "block_ssh" {  #done
   network = google_compute_network.vpc.name
 
   deny {
-    protocol = "tcp"
+    protocol =var.protocol
     ports = ["22"]
 
   }
@@ -98,44 +98,44 @@ resource "google_compute_region_instance_template" "vm_template" {
   }
 }
 
-resource "google_compute_instance" "vm_instance" {  #done
-  name = var.vm_name
-  zone = var.vm_zone
-  machine_type = var.vm_machine_type
+# resource "google_compute_instance" "vm_instance" {  #done
+#   name = var.vm_name
+#   zone = var.vm_zone
+#   machine_type = var.vm_machine_type
 
-  boot_disk {
-    initialize_params {
-      image = var.vm_image
-      type = var.vm_disk_type
-      size = var.vm_disk_size_gb
-    }
-  }
-  network_interface {
-    subnetwork = google_compute_subnetwork.webapp_subnet.id
-    network = google_compute_network.vpc.id
-
-      access_config{
-        nat_ip = google_compute_address.static_ip.address
-    
-  }
-  }
-  # service_account {
-  #   scopes = ["cloud-platform"]
-  #   email = var.email
-  # }
-
-#  metadata = {
-#     startup-script = "#!/bin/bash\n  cat<<EOF>/opt/web-app/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/web-app/.env\n  chmod 600 /opt/web-app/.env\n  systemctl restart web-app\n\n  EOT\n"
+#   boot_disk {
+#     initialize_params {
+#       image = var.vm_image
+#       type = var.vm_disk_type
+#       size = var.vm_disk_size_gb
+#     }
 #   }
- metadata = {
-    startup-script = "#!/bin/bash\n  cat<<EOF>/opt/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\ndialect=\"mysql\"\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/.env\n  chmod 600 /opt/.env\n  systemctl restart web-app\n\n  EOT\n"
-  }
-  service_account {
-    email  = google_service_account.vm_service_account.email
-    scopes = ["cloud-platform"]
-  }
+#   network_interface {
+#     subnetwork = google_compute_subnetwork.webapp_subnet.id
+#     network = google_compute_network.vpc.id
 
-}
+#       access_config{
+#         nat_ip = google_compute_address.static_ip.address
+    
+#   }
+#   }
+#   # service_account {
+#   #   scopes = ["cloud-platform"]
+#   #   email = var.email
+#   # }
+
+# #  metadata = {
+# #     startup-script = "#!/bin/bash\n  cat<<EOF>/opt/web-app/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/web-app/.env\n  chmod 600 /opt/web-app/.env\n  systemctl restart web-app\n\n  EOT\n"
+# #   }
+#  metadata = {
+#     startup-script = "#!/bin/bash\n  cat<<EOF>/opt/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\ndialect=\"mysql\"\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/.env\n  chmod 600 /opt/.env\n  systemctl restart web-app\n\n  EOT\n"
+#   }
+#   service_account {
+#     email  = google_service_account.vm_service_account.email
+#     scopes = ["cloud-platform"]
+#   }
+
+# }
 
 resource "google_project_service" "service_networking" { #done
   service = "servicenetworking.googleapis.com"
@@ -233,7 +233,11 @@ resource "google_compute_address" "static_ip" {   #done
   name   = "vm-static-ip"
   region = var.region
 }
-
+resource "google_service_account" "cloudfunction_service_account" {
+  account_id   = "cloud-service-account"
+  display_name = "Service Account for cloud function"
+  project = var.project_id
+ }
 resource "google_service_account" "vm_service_account" { #done
   account_id   = "vm-service-account"
   display_name = "Service Account for VM Instance"
@@ -258,7 +262,7 @@ resource "google_project_iam_binding" "monitoring_metric_writer" {  #done
 resource "google_project_iam_binding" "cloud_run_invoker" {  #done
   project = var.project_id
   role="roles/run.invoker"
-  members = ["serviceAccount:${google_service_account.vm_service_account.email}"]
+  members = ["serviceAccount:${google_service_account.cloudfunction_service_account.email}"]
   
 }
 
@@ -309,7 +313,7 @@ resource "google_dns_record_set" "my_dns_record" {  #done
   type         = "A"
   ttl          = 300
   managed_zone = data.google_dns_managed_zone.my_dns_zone.name
-  rrdatas      = [google_compute_address.static_ip.address]
+  rrdatas      = [google_compute_global_forwarding_rule.webapp_forwarding_rule.ip_address]
 
 }
 
@@ -348,7 +352,7 @@ resource "google_storage_bucket_object" "serverless-archive" { #done
 }
 
 resource "google_cloudfunctions2_function" "verify_email_function" { #done
-  depends_on = [ google_vpc_access_connector.vpc_connector ]
+  depends_on = [ google_vpc_access_connector.vpc_connector, google_service_account.cloudfunction_service_account ]
   name="verify-email-function"
   description = "Verification of Email"
   location = "us-east4"
@@ -388,7 +392,7 @@ resource "google_cloudfunctions2_function" "verify_email_function" { #done
     trigger_region = "us-east4"
     event_type = "google.cloud.pubsub.topic.v1.messagePublished"
     pubsub_topic = google_pubsub_topic.verify_email.id
-    service_account_email = google_service_account.vm_service_account.email
+    service_account_email = google_service_account.cloudfunction_service_account.email
     retry_policy = "RETRY_POLICY_RETRY"
   }
   
@@ -494,8 +498,9 @@ resource "google_compute_global_forwarding_rule" "webapp_forwarding_rule" {
 
 resource "google_compute_firewall" "webapp_health_check" {
   name = "webapphealthcheck"
-  direction = google_compute_network.vpc.self_link
-  network = var.loadbalancerrange
+  direction = var.direction
+  network = google_compute_network.vpc.self_link
+  source_ranges  = var.loadbalancerrange
   allow {
     protocol = var.protocol
     ports = [var.app_port]
