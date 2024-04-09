@@ -97,7 +97,7 @@ resource "google_compute_region_instance_template" "vm_template" {
     startup-script = "#!/bin/bash\n  cat<<EOF>/opt/.env\n  DB_HOST = ${google_sql_database_instance.cloudsql_instance.private_ip_address}\n  DB_NAME = webapp\n  DB_USER= webapp\n  DB_PASSWORD= ${random_password.password.result}\ndialect=\"mysql\"\n  DB_PORT= 3306\n  EOF\n\n  chown csye6225:csye6225 /opt/.env\n  chmod 600 /opt/.env\n  systemctl restart web-app\n\n  EOT\n"
   }
 }
-
+#
 # resource "google_compute_instance" "vm_instance" {  #done
 #   name = var.vm_name
 #   zone = var.vm_zone
