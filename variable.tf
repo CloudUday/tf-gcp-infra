@@ -1,3 +1,5 @@
+
+
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
@@ -6,7 +8,6 @@ variable "project_id" {
 variable "region" {
   description = "The GCP region to deploy resources"
   type        = string
-  default     = "us-east4"
 }
 
 variable "vpc_name" {
@@ -26,11 +27,11 @@ variable "db_subnet_cidr" {
 
 variable "vm_name" {
   description = "The name of the VM instance"
-  type        = string  
+  type        = string
 }
 
 variable "vm_zone" {
-  description = "The zone for the VM  instance"
+  description = "The zone for the VM instance"
   type        = string
 }
 
@@ -56,161 +57,250 @@ variable "vm_disk_size_gb" {
 
 variable "app_port" {
   description = "The application port to allow through the firewall"
-  type        = string 
+  type        = string
 }
 
-variable "cloudsql_instance_name" {
+variable "ssh_port" {
+  description = "The SSH port to allow through the firewall"
+  type        = string
+}
+
+variable "Sql_instance_name" {
   description = "The name of the Cloud SQL instance"
   type        = string
 }
 
-variable "cloudsql_database_version" {
+variable "database_version" {
   description = "The database version for the Cloud SQL instance"
   type        = string
-  default     = "MYSQL_5_7"
 }
 
-variable "cloudsql_instance_tier" {
-  description = "The tier (machine type) for the Cloud SQL instance"
+variable "routing_mode" {
+  description = "The routing mode for the VPC"
   type        = string
-  default     = "db-f1-micro"
 }
 
-variable "cloudsql_require_ssl" {
-  description = "Whether SSL connections are required for the Cloud SQL instance"
+variable "vpc_private_service_access" {
+  description = "Configuration for VPC private service access"
+  type        = string
+}
+
+variable "private_ip_address" {
+  description = "Private IP address for the service"
+  type        = string
+}
+
+variable "forwarding_rule_private_access" {
+  description = "Name of the forwarding rule for private access"
+  type        = string
+}
+
+variable "private_access_address_type" {
+  description = "Type of address for private access"
+  type        = string
+}
+
+variable "db_deletion_protection" {
+  description = "Whether deletion protection is enabled for the DB"
   type        = bool
-  default     = true
 }
 
-variable "cloudsql_disk_type" {
+variable "ipv4_enabled" {
+  description = "Whether IPv4 is enabled for the DB"
+  type        = bool
+}
+
+variable "sql_disk_type" {
   description = "The disk type for the Cloud SQL instance"
   type        = string
-  default     = "PD_SSD"
 }
 
-variable "cloudsql_disk_size" {
+variable "disk_size" {
   description = "The disk size for the Cloud SQL instance in GB"
   type        = number
-  default     = 100
 }
 
-variable "cloudsql_disk_autoresize" {
-  description = "Whether the Cloud SQL instance disk should be auto-resizable"
-  type        = bool
-  default     = true
+variable "tier" {
+  description = "The tier (machine type) for the Cloud SQL instance"
+  type        = string
 }
 
-variable "db_port" {
-  description = "value"
-  type = number
-  default = 3306
-  
-}
-variable "routing_mode" {
-  description = "value"
-}
-variable "email" {
-  description = "service_email"
+variable "databasename" {
+  description = "The name of the database to create in the Cloud SQL instance"
+  type        = string
 }
 
-
-
-variable "ssl" {
-  description = "value"
-}
-variable "max" {
-  description = "value"
-}
-variable "min" {
-  description = "value"
+variable "user" {
+  description = "The username for the database in the Cloud SQL instance"
+  type        = string
 }
 
-variable "cooldown" {
-  description = "value"
+variable "Destination_range" {
+  description = "Destination range for the VPC routes"
+  type        = string
 }
 
-variable "urlname" {
-  description = "value"
-}
-variable "targetcpu" {
-  description = "value"
-}
-variable "target_tags" {
-  description = "value"
-}
-variable "priorityvalue" {
-  description = "value"
-}
-variable "direction" {
-  description = "value"
-}
-variable "loadbalancerport" {
-  description = "value"
-}
-variable "scheme" {
-  description = "value"
-}
-variable "ip_protocol" {
-  description = "value"
+variable "source_ranges" {
+  description = "Source ranges for the firewall rules"
+  type        = string
 }
 
-variable "port_name" {
-  description = "value"
-}
-
-variable "webapp_protocol" {
-  description = "value"
-}
-variable "timeout_sec" {
-  description = "value"
-}
-variable "initial_delay_sec" {
-  description = "value"
-}
-variable "time_out" {
-  description = "value"
-}
-variable "distributionzones" {
-  description = "value"
-}
-variable "target_size" {
-  description = "value"
-}
-variable "unhealthy_threshold" {
-  description = "value"
-}
-variable "healthy_threshold" {
-  description = "value"
-}
-variable "interval_time" {
-  description = "value"
-}
-variable "tag" {
-  description = "value"
-}
-variable "loadbalancerrange" {
-  description = "value"
-}
-variable "named_port" {
-  description = "value"
-}
-variable "namedp" {
-  description = "value"
-}
-variable "request_path" {
-  description = "value"
-}
-variable "record_ttl" {
-  description = "value"
-}
-variable "dns_type" {
-  description = "value"
+variable "db_edition" {
+  description = "Edition of the database"
+  type        = string
 }
 
 variable "domain_name" {
-  description = "value"
+  description = "The domain name for the SSL certificate"
+  type        = string
+}
+
+variable "ssl" {
+  description = "The name of the SSL certificate"
+  type        = string
+}
+
+variable "max" {
+  description = "Maximum number of instances for autoscaling"
+  type        = number
+}
+
+variable "min" {
+  description = "Minimum number of instances for autoscaling"
+  type        = number
+}
+
+variable "cooldown" {
+  description = "Cooldown period for autoscaling"
+  type        = number
+}
+
+variable "urlname" {
+  description = "Name for the URL map"
+  type        = string
+}
+
+variable "targetcpu" {
+  description = "Target CPU utilization for autoscaling"
+  type        = number
+}
+
+variable "target_tags" {
+  description = "Tags for the target instances"
+  type        = list(string)
+}
+
+variable "priorityvalue" {
+  description = "Priority value for routing"
+  type        = number
 }
 
 variable "protocol" {
-  description = "value"
+  description = "Protocol for the firewall rule"
+  type        = string
+}
+
+variable "direction" {
+  description = "Direction for the firewall rule"
+  type        = string
+}
+
+variable "loadbalancerport" {
+  description = "Port for the load balancer"
+  type        = string
+}
+
+variable "scheme" {
+  description = "Scheme for the load balancing (EXTERNAL, INTERNAL)"
+  type        = string
+}
+
+variable "ip_protocol" {
+  description = "IP protocol for the forwarding rule"
+  type        = string
+}
+
+variable "port_name" {
+  description = "Port name for the backend service"
+  type        = string
+}
+
+variable "webapp_protocol" {
+  description = "Protocol for the web application"
+  type        = string
+}
+
+variable "timeout_sec" {
+  description = "Timeout in seconds for the health check"
+  type        = number
+}
+
+variable "initial_delay_sec" {
+  description = "Initial delay in seconds for auto-healing"
+  type        = number
+}
+
+variable "time_out" {
+  description = "Timeout value"
+  type        = number
+}
+
+variable "distributionzones" {
+  description = "Zones for distribution policy"
+  type        = list(string)
+}
+
+variable "target_size" {
+  description = "Target size for the instance group"
+  type        = number
+}
+
+variable "unhealthy_threshold" {
+  description = "Unhealthy threshold for health checks"
+  type        = number
+}
+
+variable "healthy_threshold" {
+  description = "Healthy threshold for health checks"
+  type        = number
+}
+
+variable "interval_time" {
+  description = "Interval time for health checks"
+  type        = number
+}
+
+variable "tag" {
+  description = "Tags for firewall rule targets"
+  type        = list(string)
+}
+
+variable "loadbalancerrange" {
+  description = "IP range for the load balancer"
+  type        = list(string)
+}
+
+variable "named_port" {
+  description = "Named port for the instance group"
+  type        = number
+}
+
+variable "namedp" {
+  description = "Name for the named port"
+  type        = string
+}
+
+variable "request_path" {
+  description = "Request path for the health check"
+  type        = string
+}
+
+variable "record_ttl" {
+  description = "TTL for the DNS record"
+  type        = number
+}
+
+variable "dns_type" {
+  description = "DNS record type"
+  type        = string
 }
